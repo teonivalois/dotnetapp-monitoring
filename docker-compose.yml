@@ -10,6 +10,23 @@ services:
     container_name: web
     ports:
       - 80:80
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+    - 3000:3000
+    environment:
+    - "GF_SECURITY_ADMIN_PASSWORD=secret"
+    - "GF_INSTALL_PLUGINS=grafana-piechart-panel"
+    volumes:
+    - type: bind
+      source: ./grafana/config.ini
+      target: /etc/grafana/config.ini
+    - type: bind
+      source: ./grafana/provisioning
+      target: /etc/grafana/provisioning
+    depends_on:
+    - prometheus
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus
@@ -32,13 +49,3 @@ services:
     - /var/run:/var/run:rw
     - /sys:/sys:ro
     - /var/lib/docker/:/var/lib/docker:ro
-    depends_on:
-    - web
-  grafana:
-    image: grafana/grafana
-    container_name: grafana
-    ports:
-    - 3000:3000
-    environment:
-    - "GF_SECURITY_ADMIN_PASSWORD=secret"
-    - "GF_INSTALL_PLUGINS=grafana-piechart-panel"

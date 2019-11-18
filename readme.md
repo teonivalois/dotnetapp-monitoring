@@ -6,6 +6,7 @@
 $ mkdir src
 
 # create the main solution
+$ cd src
 $ dotnet new sln -n Sample.App
 
 # create the sample app and add it to the solution
@@ -44,13 +45,21 @@ Then, for the ```Program.cs``` file, on the ```CreateWebHostBuilder```, before c
 .UseMetricsWebTracking()
 ```
 
+Also, add the following using statements to ```Program.cs```:
+```csharp
+using App.Metrics;
+using App.Metrics.AspNetCore;
+```
+
 ## Run it
 ```bash
 $ docker-compose up --build
 ```
 
 ## Monitor it
-Go to http://localhost:3000 to load Grafana. The default credentials are **user: admin, password: secret**. Once logged in, add the prometheus datasource (http://prometheus:9090) and import the following grafana dashboards:
+The provided Grafana setup is already configured with the provided Prometheus as a datasource.
+
+The default credentials are **user: admin, password: secret**. Once logged in, import the following grafana dashboards:
 
 - App-Metrics Prometheus Dashboard: **2204**
 - cAdvisor Dashboard: **193**
