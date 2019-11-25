@@ -22,12 +22,50 @@ $ cd ./Sample.App.Web
 $ dotnet add package App.Metrics.AspNetCore.Mvc
 $ dotnet add package App.Metrics.AspNetCore.Tracking
 $ dotnet add package App.Metrics.Formatters.Prometheus
+$ dotnet add package Serilog
+$ dotnet add package Serilog.Enrichers.Environment
+$ dotnet add package Serilog.Exceptions
+$ dotnet add package Serilog.Extensions.Logging
+$ dotnet add package Serilog.Sinks.ElasticSearch
 ```
 
-Once the application is generated, open the ```Startup.cs``` file and add the following line to the ```ConfigureServices``` method:
+Once the application is generated, open the ```Startup.cs``` file and add the following line to the ```Startup``` method:
+
+```csharp
+var logConfiguration = new LoggerConfiguration()
+    .Enrich.FromLogContext()
+    .Enrich.WithExceptionDetails()
+    .Enrich.WithMachineName();
+
+string elasticUri = Environment.GetEnvironmentVariable("ELASTICSEARCH_HOSTS");
+if(!string.IsNullOrEmpty(elasticUri))
+    logConfiguration.WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri(elasticUri))
+    {
+        AutoRegisterTemplate = true,
+    });
+
+Log.Logger = logConfiguration.CreateLogger();
+```
+
+On the ```Configure``` method, add the ```ILoggerFactory loggerFactory``` as a parameter for the method, so the loggerFactory can be injected, and add the following line of code to enable *Serilog* as the logger:
+
+```csharp
+loggerFactory.AddSerilog();
+```
+
+Next, on the ```ConfigureServices``` method, add the following:
 
 ```csharp
 services.AddMvcCore().AddMetricsCore();
+```
+
+Finally, add the following ```using``` statements to the ```Startup.cs``` file:
+
+```csharp
+using Microsoft.Extensions.Logging;
+using Serilog;
+using Serilog.Exceptions;
+using Serilog.Sinks.Elasticsearch;
 ```
 
 Then, for the ```Program.cs``` file, on the ```CreateWebHostBuilder```, before calling ```UsingStartUp<Startup>()```, add the following:
@@ -63,5 +101,6 @@ The default credentials are **user: admin, password: secret**. Once logged in, i
 
 - App-Metrics Prometheus Dashboard: **2204**
 - cAdvisor Dashboard: **193**
+- Kibana Dashboard: **5601**
 
 These dashboards will give you a really good insight on how your application is running.

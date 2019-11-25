@@ -10,14 +10,37 @@ services:
     container_name: web
     ports:
       - 80:80
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.4.2
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - xpack.monitoring.enabled=true
+      - xpack.watcher.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.4.2
+    container_name: kibana
+    ports:
+      - 5601:5601
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - XPACK_MONITORING_ENABLED=true
+    depends_on:
+      - elasticsearch
   grafana:
     image: grafana/grafana
     container_name: grafana
     ports:
     - 3000:3000
     environment:
-    - "GF_SECURITY_ADMIN_PASSWORD=secret"
-    - "GF_INSTALL_PLUGINS=grafana-piechart-panel"
+    - GF_SECURITY_ADMIN_PASSWORD=secret
+    - GF_INSTALL_PLUGINS=grafana-piechart-panel
     volumes:
     - type: bind
       source: ./grafana/config.ini
@@ -49,3 +72,5 @@ services:
     - /var/run:/var/run:rw
     - /sys:/sys:ro
     - /var/lib/docker/:/var/lib/docker:ro
+volumes:
+  elasticsearch-data:
