@@ -90,17 +90,24 @@ using App.Metrics.AspNetCore;
 ```
 
 ## Run it
+Now run it from the root of the repository:
 ```bash
 $ docker-compose up --build
 ```
 
 ## Monitor it
-The provided Grafana setup is already configured with the provided Prometheus as a datasource.
+The provided Grafana setup is already configured with the provided Prometheus as a datasource. You can access the monitoring tools on:
 
-The default credentials are **user: admin, password: secret**. Once logged in, import the following grafana dashboards:
+- Grafana: http://localhost:3000
+- Prometheus: http://localhost:9090
+- cAdvisor: http://localhost:8080
+
+The default credentials for Grafana are **user: admin, password: secret**. Once logged in, import the following grafana dashboards:
 
 - App-Metrics Prometheus Dashboard: **2204**
 - cAdvisor Dashboard: **193**
-- Kibana Dashboard: **5601**
 
-These dashboards will give you a really good insight on how your application is running.
+These dashboards will give you a really good insight on how your application is running.****
+
+## Check the logs for it
+For logs, **Kibana** will be up and running on port http://localhost:5601
